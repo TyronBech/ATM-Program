@@ -1,22 +1,33 @@
-      ******************************************************************
-      * Author:
-      * Date:
-      * Purpose:
-      * Tectonics: cobc
-      ******************************************************************
        IDENTIFICATION DIVISION.
        PROGRAM-ID. YOUR-PROGRAM-NAME.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-       SELECT DATAFILE ASSIGN TO "Data.txt"
-       ORGANIZATION IS LINE SEQUENTIAL
-       ACCESS IS SEQUENTIAL.
+       SELECT DATAFILE
+       ASSIGN TO
+      * Change the directory based on your device
+       "C:\Users\tyron\OneDrive\Desktop\COBOL\ATM-MACHINE\Data.txt"
+              ORGANIZATION IS LINE SEQUENTIAL
+              ACCESS IS SEQUENTIAL.
        DATA DIVISION.
        FILE SECTION.
+       FD DATAFILE.
+       01 USERDATA.
+          02 USER-ID PIC 9(5).
+          02 USER-NAME PIC X(20).
+          02 USER-BALANCE PIC 9(12).
        WORKING-STORAGE SECTION.
+       01 WS-USER-DATA.
+          02 WS-ID PIC 9(5) VALUE 12345.
+          02 WS-NAME PIC X(20) VALUE "TYRON BECHAYDA".
+          02 WS-BALANCE PIC 9(12) VALUE 12000.
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
-            DISPLAY "Hello world"
-            STOP RUN.
+          OPEN OUTPUT DATAFILE.
+          MOVE WS-ID TO USER-ID.
+          MOVE WS-NAME TO USER-NAME.
+          MOVE WS-BALANCE TO USER-BALANCE.
+          WRITE USERDATA.
+          CLOSE DATAFILE.
+          STOP RUN.
        END PROGRAM YOUR-PROGRAM-NAME.
