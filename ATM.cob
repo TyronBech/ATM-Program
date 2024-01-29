@@ -25,6 +25,7 @@
        01 WS-IS-EXISTS PIC 9.
       * VAR FOR USER CHOICE
        01 WS-CHOICE PIC Z.
+       01 WS-MAIN-CHOICE PIC Z.
       *TRANSACTION VARIABLES
        01 WS-BALANCE PIC -ZZZ,ZZZ,ZZZ,ZZ9.
        01 WS-DEPOSIT PIC -ZZZ,ZZZ,ZZZ,ZZ9.
@@ -43,17 +44,17 @@
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
            OPEN I-O USERDATA.
-           PERFORM UNTIL WS-CHOICE IS EQUAL TO 3
+           PERFORM UNTIL WS-MAIN-CHOICE IS EQUAL TO 3
              DISPLAY " " ERASE SCREEN
              PERFORM P-BOARDER
              PERFORM P-STARS
-             DISPLAY "ATAM MACHINE COBOL PROGRAM" AT 0647
+             DISPLAY "ATM MACHINE COBOL PROGRAM" AT 0647
              DISPLAY "1 - SIGN-IN" AT 0850
              DISPLAY "2 - LOG-IN" AT 0950
              DISPLAY "3 - EXIT" AT 1050
              DISPLAY "ENTER YOUR CHOICE:" AT 1150
-             ACCEPT WS-CHOICE AT 1169
-             EVALUATE WS-CHOICE
+             ACCEPT WS-MAIN-CHOICE AT 1169
+             EVALUATE WS-MAIN-CHOICE
                WHEN 1 PERFORM SIGN-IN
                WHEN 2 PERFORM LOG-IN
                WHEN 3 EXIT
@@ -132,6 +133,9 @@
                WHEN 4 PERFORM P-PROFILE
                WHEN 5 PERFORM P-DELETE
            END-EVALUATE.
+           IF WS-IS-EXISTS = 1 THEN
+             CLOSE USERDATA
+           END-IF.
            PERFORM P-PAUSE.
            EXIT.
 
@@ -201,20 +205,29 @@
            EXIT.
       *DELETE ACCOUNT
        P-DELETE.
+           MOVE 0 TO WS-IS-EXISTS.
            DISPLAY " " ERASE SCREEN.
            PERFORM P-BOARDER.
            PERFORM P-STARS.
            DISPLAY "DELETE ACCOUNT" AT 0653.
            DISPLAY "ENTER YOUR PASSWORD:" AT 0850.
            ACCEPT F-PASSWORD AT 0871.
-           IF F-BALANCE > 50 THEN
-             DISPLAY "YOU STILL HAVE MORE THAN 50 BALANCE" AT 1042
-             DISPLAY "PLEASE WITHDRAW YOU MONEY FIRST" AT 1144
+           READ USERDATA
+             INVALID KEY MOVE 1 TO WS-IS-EXISTS
+           END-READ.
+           IF WS-IS-EXISTS = 0 THEN
+             IF F-BALANCE > 50 THEN
+               DISPLAY "YOU STILL HAVE MORE THAN 50 BALANCE" AT 1042
+               DISPLAY "PLEASE WITHDRAW YOU MONEY FIRST" AT 1144
+               MOVE 0 TO WS-IS-EXISTS
+             ELSE
+               DELETE USERDATA
+               END-DELETE
+               MOVE 6 TO WS-CHOICE
+             END-IF
            ELSE
-             DELETE USERDATA
-               INVALID KEY DISPLAY "YOU ENTERED A WRONG PASSWORD"
-               AT 1041
-             END-DELETE
+             DISPLAY "YOU ENTERED A WRONG PASSWORD" AT 1041
+             MOVE 0 TO WS-IS-EXISTS
            END-IF.
            EXIT.
       *PAUSE SECTION
