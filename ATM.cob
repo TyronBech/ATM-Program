@@ -81,10 +81,16 @@
            ACCEPT F-USERNAME AT 1066.
            DISPLAY "ENTER PASSWORD:" AT 1150.
            ACCEPT F-PASSWORD AT 1166.
-           MOVE 0 TO F-BALANCE.
+           IF LENGTH OF F-PASSWORD = 6 AND F-PASSWORD IS NUMERIC
+           AND F-PASSWORD NOT EQUAL TO ZERO
+           MOVE 0 TO F-BALANCE
            WRITE F-DATA
              INVALID KEY DISPLAY "PASSWORD IS ALREADY BEEN USED" AT 1442
-           END-WRITE.
+           END-WRITE
+           ELSE
+               DISPLAY "INVALID INPUT, PLEASE ENTER 6-DIGIT NUMBER"
+               AT 1440
+           END-IF.
            PERFORM P-PAUSE.
            EXIT.
        LOG-IN.
