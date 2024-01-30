@@ -39,8 +39,6 @@
        01 J PIC 9(3) VALUE ZEROES.
        01 GEN-NUM PIC 9(3) VALUE ZEROES.
        01 GEN-COL PIC 9 VALUE ZERO.
-      * VARIABLE FOR MESSSAGE
-       01 WS-MES PIC X(8) VALUE SPACES.
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
            OPEN I-O USERDATA.
@@ -49,7 +47,6 @@
              PERFORM P-BOARDER
              PERFORM P-STARS
              DISPLAY "ATM MACHINE COBOL PROGRAM" AT 0647
-             FOREGROUND-COLOR 3
              DISPLAY "1 - SIGN-IN" AT 0850
              DISPLAY "2 - LOG-IN" AT 0950
              DISPLAY "3 - EXIT" AT 1050
@@ -68,17 +65,17 @@
            DISPLAY " " ERASE SCREEN.
            PERFORM P-BOARDER.
            PERFORM P-STARS.
-           DISPLAY "SIGN-IN SECTION" AT 0653 FOREGROUND-COLOR 3.
+           DISPLAY "SIGN-IN SECTION" AT 0653.
            DISPLAY "ENTER YOUR NAME:" AT 0850.
            ACCEPT F-NAME AT 0867.
            DISPLAY "ENTER YOUR AGE:" AT 0950.
            ACCEPT F-AGE AT 0966.
            IF F-AGE IS LESS THAN 18 THEN
              DISPLAY "YOU ARE NOT OLD ENOUGH TO ENTER" AT 1144
-             FOREGROUND-COLOR 4
              PERFORM P-PAUSE
              PERFORM MAIN-PROCEDURE
            END-IF.
+<<<<<<< HEAD
            MOVE 1 TO WS-IS-EXISTS
            DISPLAY "GENERATED PIN:" AT 1050.
            PERFORM UNTIL WS-IS-EXISTS = 0
@@ -93,6 +90,22 @@
                  INVALID KEY MOVE 1 TO WS-IS-EXISTS
                END-WRITE
            END-PERFORM.
+=======
+           DISPLAY "ENTER USERNAME:" AT 1050.
+           ACCEPT F-USERNAME AT 1066.
+           DISPLAY "ENTER PASSWORD:" AT 1150.
+           ACCEPT F-PASSWORD AT 1166.
+           IF LENGTH OF F-PASSWORD = 6 AND F-PASSWORD IS NUMERIC
+           AND F-PASSWORD NOT EQUAL TO ZERO
+           MOVE 0 TO F-BALANCE
+           WRITE F-DATA
+             INVALID KEY DISPLAY "PASSWORD IS ALREADY BEEN USED" AT 1442
+           END-WRITE
+           ELSE
+               DISPLAY "INVALID INPUT, PLEASE ENTER 6-DIGIT NUMBER"
+               AT 1440
+           END-IF.
+>>>>>>> parent of 0f895fd (ADDED LITTLE DESIGN)
            PERFORM P-PAUSE.
            EXIT.
        LOG-IN.
@@ -100,18 +113,38 @@
            DISPLAY " " ERASE SCREEN.
            PERFORM P-BOARDER.
            PERFORM P-STARS.
+<<<<<<< HEAD
            DISPLAY "LOG-IN SECTION" AT 0653 FOREGROUND-COLOR 3.
            DISPLAY "ENTER YOUR PIN:" AT 0850.
            ACCEPT F-PASSWORD AT 0871.
+=======
+           DISPLAY "LOG-IN SECTION" AT 0653.
+           DISPLAY "ENTER YOUR USERNAME:" AT 0850.
+           ACCEPT WS-USERNAME AT 0871.
+           DISPLAY "ENTER YOUR PASSWORD:" AT 0950.
+           ACCEPT F-PASSWORD AT 0971.
+>>>>>>> parent of 0f895fd (ADDED LITTLE DESIGN)
            READ USERDATA
              INVALID KEY MOVE 1 TO WS-IS-EXISTS
            END-READ.
            IF WS-IS-EXISTS IS EQUAL TO 1 THEN
+<<<<<<< HEAD
              DISPLAY "YOU ENTERED WRONG PIN" AT 1048
              FOREGROUND-COLOR 4
              PERFORM P-PAUSE
            ELSE
              PERFORM ATM UNTIL WS-CHOICE IS EQUAL TO 6
+=======
+             DISPLAY "YOU ENTERED WRONG PASSWORD" AT 1146
+             PERFORM P-PAUSE
+           ELSE
+             IF WS-USERNAME IS NOT EQUAL TO F-USERNAME THEN
+               DISPLAY "YOU ENTERED WRONG USERNAME" AT 1146
+               PERFORM P-PAUSE
+             ELSE
+               PERFORM ATM UNTIL WS-CHOICE IS EQUAL TO 6
+             END-IF
+>>>>>>> parent of 0f895fd (ADDED LITTLE DESIGN)
            END-IF.
            EXIT.
       *MAIN PAGE OF ATM
@@ -119,7 +152,7 @@
            DISPLAY " " ERASE SCREEN.
            PERFORM P-BOARDER.
            PERFORM P-STARS.
-           DISPLAY "ATM CONSOLE PROGRAM" AT 0650 FOREGROUND-COLOR 3.
+           DISPLAY "ATM CONSOLE PROGRAM" AT 0650.
            DISPLAY "1 - BALANCE" AT 0752.
            DISPLAY "2 - DEPOSIT" AT 0852.
            DISPLAY "3 - WITHDRAW" AT 0952.
@@ -146,7 +179,7 @@
            DISPLAY " " ERASE SCREEN.
            PERFORM P-BOARDER.
            PERFORM P-STARS.
-           DISPLAY "BALANCE SECTION" AT 0652 FOREGROUND-COLOR 3.
+           DISPLAY "BALANCE SECTION" AT 0652.
            DISPLAY "CURRENT BALANCE: " AT 0842.
            MOVE F-BALANCE TO WS-BALANCE.
            DISPLAY WS-BALANCE AT 0860.
@@ -157,7 +190,7 @@
            DISPLAY " " ERASE SCREEN.
            PERFORM P-BOARDER.
            PERFORM P-STARS.
-           DISPLAY "DEPOSIT SECTION" AT 0652 FOREGROUND-COLOR 3.
+           DISPLAY "DEPOSIT SECTION" AT 0652.
            DISPLAY "ENTER THE AMOUNT TO DEPOSIT:" AT 0842.
            ACCEPT WS-DEPOSIT AT 0874.
            MOVE WS-BALANCE TO WS-C-BALANCE.
@@ -166,8 +199,6 @@
            MOVE WS-C-BALANCE TO F-BALANCE.
            REWRITE F-DATA
            END-REWRITE.
-           MOVE "DEPOSIT" TO WS-MES.
-           PERFORM P-BUNNY.
            EXIT.
 
       *WITHDRAW SECTION
@@ -175,23 +206,21 @@
            DISPLAY " " ERASE SCREEN.
            PERFORM P-BOARDER.
            PERFORM P-STARS.
-           DISPLAY "WITHDRAW SECTION" AT 0651 FOREGROUND-COLOR 3.
+           DISPLAY "WITHDRAW SECTION" AT 0651.
            DISPLAY "ENTER THE AMOUNT TO WITHDRAW:" AT 0841.
            ACCEPT WS-WITHDRAW AT 0873.
            MOVE WS-WITHDRAW TO WS-C-WITHDRAW.
            MOVE WS-BALANCE TO WS-C-BALANCE.
            IF WS-C-WITHDRAW IS LESS THAN 0 THEN
-               DISPLAY "INVALID AMOUNT" FOREGROUND-COLOR 4
+               DISPLAY "INVALID AMOUNT"
            ELSE IF WS-C-WITHDRAW IS GREATER THAN WS-C-BALANCE THEN
-               DISPLAY "INSUFFICIENT BALANCE" AT 0949 FOREGROUND-COLOR 4
+               DISPLAY "INSUFFICIENT BALANCE" AT 0949
            ELSE
                SUBTRACT WS-C-WITHDRAW FROM WS-C-BALANCE
                GIVING WS-C-BALANCE
                MOVE WS-C-BALANCE TO F-BALANCE
                REWRITE F-DATA
                END-REWRITE
-               MOVE "WITHDRAW" TO WS-MES
-               PERFORM P-BUNNY
            END-IF.
            EXIT.
 
@@ -200,7 +229,7 @@
            DISPLAY " " ERASE SCREEN.
            PERFORM P-BOARDER.
            PERFORM P-STARS.
-           DISPLAY "PROFILE SECTION" AT 0652 FOREGROUND-COLOR 3.
+           DISPLAY "PROFILE SECTION" AT 0652.
            DISPLAY "NAME:" AT 0850
            DISPLAY F-NAME AT 0856.
            DISPLAY "AGE:" AT 0950.
@@ -224,9 +253,7 @@
            IF WS-IS-EXISTS = 0 THEN
              IF F-BALANCE > 50 THEN
                DISPLAY "YOU STILL HAVE MORE THAN 50 BALANCE" AT 1042
-               FOREGROUND-COLOR 4
                DISPLAY "PLEASE WITHDRAW YOU MONEY FIRST" AT 1144
-               FOREGROUND-COLOR 4
                MOVE 0 TO WS-IS-EXISTS
              ELSE
                DELETE USERDATA
@@ -235,7 +262,6 @@
              END-IF
            ELSE
              DISPLAY "YOU ENTERED A WRONG PASSWORD" AT 1041
-             FOREGROUND-COLOR 4
              MOVE 0 TO WS-IS-EXISTS
            END-IF.
            EXIT.
@@ -258,7 +284,7 @@
            EXIT.
        P-STARS.
            PERFORM VARYING I FROM 1 BY 1 UNTIL I >= 30
-             PERFORM VARYING J FROM 1 BY 1 UNTIL J >= 7
+             PERFORM VARYING J FROM 1 BY 1 UNTIL J >= 10
                COMPUTE GEN-NUM = FUNCTION RANDOM * (118 + 1) + 1
                COMPUTE GEN-COL = FUNCTION RANDOM * (6 + 1) + 1
                IF (GEN-NUM < 15 OR GEN-NUM > 105) OR
@@ -268,14 +294,5 @@
                END-IF
              END-PERFORM
            END-PERFORM.
-           EXIT.
-       P-BUNNY.
-           DISPLAY "   /\_/\" AT 2168.
-           DISPLAY " _(,`-`,)__________________________" AT 2268.
-           DISPLAY "|   U U                            |" AT 2368.
-           DISPLAY "|   THANK YOU FOR YOUR" AT 2468
-           DISPLAY WS-MES AT 2491.
-           DISPLAY "    |" AT 2499.
-           DISPLAY "|__________________________________|" AT 2568.
            EXIT.
        END PROGRAM ATM-MACHINE.
