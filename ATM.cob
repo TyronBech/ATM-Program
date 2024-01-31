@@ -5,19 +5,19 @@
        INPUT-OUTPUT SECTION.
       *FILE USED FOR THE PROGRAM
        FILE-CONTROL.
-               SELECT USERDATA ASSIGN TO
+       SELECT USERDATA ASSIGN TO
        "C:\Users\tyron\OneDrive\Desktop\COBOL\ATM-MACHINE\files.txt"
                ORGANIZATION IS INDEXED
                ACCESS MODE IS RANDOM
-               RECORD KEY F-PASSWORD.
+               RECORD KEY F-PIN.
        DATA DIVISION.
        FILE SECTION.
        FD USERDATA.
        01 F-DATA.
-         02 F-PASSWORD PIC X(20) VALUE SPACES.
+         02 F-PIN PIC 9(20) VALUE ZEROES.
+         02 F-BAL PIC 9(12).
          02 F-NAME PIC X(20) VALUE SPACES.
          02 F-AGE PIC Z9 VALUE ZEROES.
-         02 F-BAL PIC 9(12).
        WORKING-STORAGE SECTION.
        01 WS-GEN-PIN PIC 9(6) VALUE ZEROES.
       *EXISTS VARIABLE
@@ -78,13 +78,11 @@
            IF F-AGE IS LESS THAN 18 THEN
              DISPLAY "YOU ARE NOT OLD ENOUGH TO ENTER" AT 1144
              FOREGROUND-COLOR 4
-             PERFORM P-PAUSE
-             PERFORM MAIN-PROCEDURE
            END-IF.
            COMPUTE WS-GEN-PIN = FUNCTION RANDOM * (99999 + 1) + 99999
-           MOVE WS-GEN-PIN TO F-PASSWORD.
            DISPLAY "GENERATED PIN:" AT 1050.
-           DISPLAY F-PASSWORD AT 1065.
+           DISPLAY WS-GEN-PIN AT 1065.
+           MOVE WS-GEN-PIN TO F-PIN.
            MOVE ZERO TO F-BAL.
            WRITE F-DATA
              INVALID KEY DISPLAY
@@ -93,14 +91,15 @@
            PERFORM P-PAUSE.
            EXIT.
        LOG-IN.
-           MOVE SPACES TO F-PASSWORD.
-           MOVE 0 TO WS-IS-EXISTS.
+           MOVE ZEROES TO F-PIN.
+           SET WS-IS-EXISTS TO 0.
            DISPLAY " " ERASE SCREEN.
            PERFORM P-BOARDER.
            PERFORM P-STARS.
            DISPLAY "LOG-IN SECTION" AT 0653 FOREGROUND-COLOR 3.
            DISPLAY "ENTER YOUR PIN:" AT 0950.
-           ACCEPT F-PASSWORD AT 0966.
+           ACCEPT WS-GEN-PIN AT 0966.
+           MOVE WS-GEN-PIN TO F-PIN.
            READ USERDATA
              INVALID KEY MOVE 1 TO WS-IS-EXISTS
            END-READ.
@@ -110,7 +109,7 @@
              PERFORM P-PAUSE
            ELSE
              MOVE F-BAL TO WS-AMOUNT
-             PERFORM ATM UNTIL WS-CHOICE IS EQUAL TO 6
+             PERFORM ATM UNTIL WS-CHOICE IS EQUAL TO 5
            END-IF.
            EXIT.
       *MAIN PAGE OF ATM
@@ -123,21 +122,17 @@
            DISPLAY "2 - DEPOSIT" AT 0852.
            DISPLAY "3 - WITHDRAW" AT 0952.
            DISPLAY "4 - PROFILE" AT 1052.
-           DISPLAY "5 - DELETE ACCOUNT" AT 1152.
-           DISPLAY "6 - EXIT" AT 1252.
-           DISPLAY "ENTER YOUR CHOICE:" AT 1352.
-           ACCEPT WS-CHOICE AT 1371.
+           DISPLAY "5 - EXIT" AT 1152.
+           DISPLAY "ENTER YOUR CHOICE:" AT 1252.
+           ACCEPT WS-CHOICE AT 1271.
            EVALUATE WS-CHOICE
                WHEN 1 PERFORM P-BALANCE
                WHEN 2 PERFORM P-DEPOSIT
                WHEN 3 PERFORM P-WITHDRAW
                WHEN 4 PERFORM P-PROFILE
-               WHEN 5 PERFORM P-DELETE
-               WHEN 6 EXIT
+               WHEN 5 EXIT
                WHEN OTHER DISPLAY "THAT IS A INVALID CHOICE" AT 1643
            END-EVALUATE.
-           REWRITE F-DATA
-           END-REWRITE.
            PERFORM P-PAUSE.
            EXIT.
 
@@ -208,36 +203,7 @@
            MOVE F-BAL TO WS-AMOUNT.
            DISPLAY WS-AMOUNT AT 1067.
            EXIT.
-      *DELETE ACCOUNT
-       P-DELETE.
-           MOVE 0 TO WS-IS-EXISTS.
-           DISPLAY " " ERASE SCREEN.
-           PERFORM P-BOARDER.
-           PERFORM P-STARS.
-           DISPLAY "DELETE ACCOUNT" AT 0653.
-           DISPLAY "ENTER YOUR PASSWORD:" AT 0850.
-           ACCEPT F-PASSWORD AT 0871.
-           READ USERDATA
-             INVALID KEY MOVE 1 TO WS-IS-EXISTS
-           END-READ.
-           IF WS-IS-EXISTS = 0 THEN
-             IF F-BAL > 50 THEN
-               DISPLAY "YOU STILL HAVE MORE THAN 50 BALANCE" AT 1042
-               FOREGROUND-COLOR 4
-               DISPLAY "PLEASE WITHDRAW YOU MONEY FIRST" AT 1144
-               FOREGROUND-COLOR 4
-               MOVE 0 TO WS-IS-EXISTS
-             ELSE
-               DELETE USERDATA
-               END-DELETE
-               MOVE 6 TO WS-CHOICE
-             END-IF
-           ELSE
-             DISPLAY "YOU ENTERED A WRONG PASSWORD" AT 1041
-             FOREGROUND-COLOR 4
-             MOVE 0 TO WS-IS-EXISTS
-           END-IF.
-           EXIT.
+
       *PAUSE SECTION
        P-PAUSE.
            DISPLAY "PRESS ENTER KEY TO CONTINUE..." AT 1644.
