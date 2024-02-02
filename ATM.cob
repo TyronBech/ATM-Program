@@ -33,9 +33,11 @@
        01 WS-WITHDRAW PIC 9(12) VALUE ZEROES.
       *QUIT VARIABLE
        01 WS-QUIT PIC X.
-      *LOG-IN SECURITY
-       01 WS-ASTERISK PIC X VALUE "*".
-       01 WS-CONT PIC X VALUE SPACE.
+      *SIGN-IN NAME VALIDATION
+       01 WS-FLAG PIC 9 VALUE 1.
+       01 WS-IS-VALID PIC X VALUE "Y".
+       01 WS-IDX PIC 99 VALUE 1.
+       01 WS-CHAR PIC X VALUE SPACE.
       * VARIABLES FOR BORDER LINE
        01 I PIC 9(3) VALUE ZEROES.
        01 J PIC 9(3) VALUE ZEROES.
@@ -76,27 +78,64 @@
            PERFORM P-BOARDER.
            PERFORM P-STARS.
            DISPLAY "SIGN-IN SECTION" AT 0653 FOREGROUND-COLOR 3.
-           DISPLAY "ENTER YOUR NAME:" AT 0850.
-           ACCEPT F-NAME AT 0867.
-           DISPLAY "ENTER YOUR AGE:" AT 0950.
-           ACCEPT F-AGE AT 0966.
-           IF F-AGE IS LESS THAN 18 THEN
-             DISPLAY "YOU ARE NOT OLD ENOUGH TO ENTER" AT 1144
-             FOREGROUND-COLOR 4
-             MOVE SPACES TO F-NAME
-             MOVE ZERO TO F-AGE
+           PERFORM UNTIL WS-FLAG > 3
+             DISPLAY "ENTER YOUR NAME:" AT 0850
+             ACCEPT F-NAME AT 0867
+             PERFORM P-VALID-NAME
+             IF WS-IS-VALID IS EQUAL TO "Y" THEN
+               EXIT PERFORM
+             END-IF
+             ADD 1 TO WS-FLAG
+
+           END-PERFORM.
+           IF WS-IS-VALID IS EQUAL TO "Y" THEN
+             DISPLAY "ENTER YOUR AGE:" AT 0950
+             ACCEPT F-AGE AT 0966
+             IF F-AGE IS LESS THAN 18 THEN
+               DISPLAY "YOU ARE NOT OLD ENOUGH TO ENTER" AT 1144
+               FOREGROUND-COLOR 4
+               MOVE SPACES TO F-NAME
+               MOVE ZERO TO F-AGE
+             ELSE
+              COMPUTE WS-GEN-PIN = FUNCTION RANDOM * (99999 + 1) + 99999
+               DISPLAY "GENERATED PIN:" AT 1050
+               DISPLAY WS-GEN-PIN AT 1065
+               MOVE WS-GEN-PIN TO F-PIN
+               MOVE ZERO TO F-BAL
+               WRITE F-DATA
+                 INVALID KEY DISPLAY
+                 "SOMETHING WENT WRONG, PLEASE TRY AGAIN" AT 1341
+               END-WRITE
+             END-IF
            ELSE
-             COMPUTE WS-GEN-PIN = FUNCTION RANDOM * (99999 + 1) + 99999
-             DISPLAY "GENERATED PIN:" AT 1050
-             DISPLAY WS-GEN-PIN AT 1065
-             MOVE WS-GEN-PIN TO F-PIN
-             MOVE ZERO TO F-BAL
-             WRITE F-DATA
-               INVALID KEY DISPLAY
-               "SOMETHING WENT WRONG, PLEASE TRY AGAIN" AT 1341
-             END-WRITE
+             DISPLAY "YOU HAVE TRIED MANY TIMES" AT 1447
+             FOREGROUND-COLOR 4
+             DISPLAY "SIGN-IN TERMINATED" AT 1551 FOREGROUND-COLOR 4
            END-IF.
            PERFORM P-PAUSE.
+           MOVE 1 TO WS-FLAG.
+           MOVE "Y" TO WS-IS-VALID.
+           EXIT.
+       P-VALID-NAME.
+           PERFORM UNTIL WS-IDX > LENGTH OF F-NAME
+             MOVE F-NAME(WS-IDX:1) TO WS-CHAR
+             IF WS-CHAR IS NUMERIC THEN
+               MOVE "N" TO WS-IS-VALID
+             END-IF
+               IF WS-IS-VALID IS EQUAL TO "N" THEN
+                 DISPLAY "NAME CONTAINS NUMERIC CHARACTER" AT 1145
+                 FOREGROUND-COLOR 4
+                 DISPLAY "PLEASE TRY AGAIN" AT 1252 FOREGROUND-COLOR 4
+                 PERFORM P-PAUSE
+                 DISPLAY "                         " AT 0867
+                 DISPLAY "                                 " AT 1144
+                 DISPLAY "                  " AT 1251
+                 DISPLAY "                                " AT 1843
+                 EXIT PERFORM
+               END-IF
+               ADD 1 TO WS-IDX
+           END-PERFORM.
+           MOVE 1 TO WS-IDX.
            EXIT.
        LOG-IN.
            SET WS-IS-EXISTS TO 0.
