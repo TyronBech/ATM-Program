@@ -33,16 +33,21 @@
        01 WS-WITHDRAW PIC 9(12) VALUE ZEROES.
       *QUIT VARIABLE
        01 WS-QUIT PIC X.
+      *LOG-IN SECURITY
+       01 WS-ASTERISK PIC X VALUE "*".
+       01 WS-CONT PIC X VALUE SPACE.
       * VARIABLES FOR BORDER LINE
        01 I PIC 9(3) VALUE ZEROES.
        01 J PIC 9(3) VALUE ZEROES.
        01 GEN-NUM PIC 9(3) VALUE ZEROES.
        01 GEN-COL PIC 9 VALUE ZERO.
+       01 WS-IS-CLOSE-FILE PIC 9.
       * VARIABLE FOR MESSSAGE
        01 WS-MES PIC X(8) VALUE SPACES.
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
            OPEN I-O USERDATA.
+           MOVE 0 TO WS-IS-CLOSE-FILE.
            PERFORM UNTIL WS-MAIN-CHOICE IS EQUAL TO 3
              DISPLAY " " ERASE SCREEN
              PERFORM P-BOARDER
@@ -59,8 +64,8 @@
              EVALUATE WS-MAIN-CHOICE
                WHEN 1 PERFORM SIGN-IN
                WHEN 2 PERFORM LOG-IN
-               WHEN 3 EXIT
-               WHEN OTHER DISPLAY "THAT IS A INVALID CHOICE" AT 1643
+               WHEN 3 DISPLAY " "
+               WHEN OTHER PERFORM P-INVALID
              END-EVALUATE
            END-PERFORM.
            CLOSE USERDATA.
@@ -78,27 +83,29 @@
            IF F-AGE IS LESS THAN 18 THEN
              DISPLAY "YOU ARE NOT OLD ENOUGH TO ENTER" AT 1144
              FOREGROUND-COLOR 4
+             MOVE SPACES TO F-NAME
+             MOVE ZERO TO F-AGE
+           ELSE
+             COMPUTE WS-GEN-PIN = FUNCTION RANDOM * (99999 + 1) + 99999
+             DISPLAY "GENERATED PIN:" AT 1050
+             DISPLAY WS-GEN-PIN AT 1065
+             MOVE WS-GEN-PIN TO F-PIN
+             MOVE ZERO TO F-BAL
+             WRITE F-DATA
+               INVALID KEY DISPLAY
+               "SOMETHING WENT WRONG, PLEASE TRY AGAIN" AT 1341
+             END-WRITE
            END-IF.
-           COMPUTE WS-GEN-PIN = FUNCTION RANDOM * (99999 + 1) + 99999
-           DISPLAY "GENERATED PIN:" AT 1050.
-           DISPLAY WS-GEN-PIN AT 1065.
-           MOVE WS-GEN-PIN TO F-PIN.
-           MOVE ZERO TO F-BAL.
-           WRITE F-DATA
-             INVALID KEY DISPLAY
-             "SOMETHING WENT WRONG, PLEASE TRY AGAIN" AT 1341
-           END-WRITE.
            PERFORM P-PAUSE.
            EXIT.
        LOG-IN.
-           MOVE ZEROES TO F-PIN.
            SET WS-IS-EXISTS TO 0.
            DISPLAY " " ERASE SCREEN.
            PERFORM P-BOARDER.
            PERFORM P-STARS.
            DISPLAY "LOG-IN SECTION" AT 0653 FOREGROUND-COLOR 3.
            DISPLAY "ENTER YOUR PIN:" AT 0950.
-           ACCEPT WS-GEN-PIN AT 0966.
+           ACCEPT WS-GEN-PIN AT 0966 NO ECHO.
            MOVE WS-GEN-PIN TO F-PIN.
            READ USERDATA
              INVALID KEY MOVE 1 TO WS-IS-EXISTS
@@ -110,7 +117,9 @@
            ELSE
              MOVE F-BAL TO WS-AMOUNT
              PERFORM ATM UNTIL WS-CHOICE IS EQUAL TO 5
+             MOVE ZEROES TO F-PIN
            END-IF.
+           MOVE ZERO TO WS-CHOICE.
            EXIT.
       *MAIN PAGE OF ATM
        ATM.
@@ -130,8 +139,8 @@
                WHEN 2 PERFORM P-DEPOSIT
                WHEN 3 PERFORM P-WITHDRAW
                WHEN 4 PERFORM P-PROFILE
-               WHEN 5 EXIT
-               WHEN OTHER DISPLAY "THAT IS A INVALID CHOICE" AT 1643
+               WHEN 5 DISPLAY " "
+               WHEN OTHER PERFORM P-INVALID
            END-EVALUATE.
            PERFORM P-PAUSE.
            EXIT.
@@ -206,8 +215,12 @@
 
       *PAUSE SECTION
        P-PAUSE.
-           DISPLAY "PRESS ENTER KEY TO CONTINUE..." AT 1644.
-           ACCEPT WS-QUIT AT 1674.
+           DISPLAY "PRESS ENTER KEY TO CONTINUE..." AT 1844.
+           ACCEPT WS-QUIT AT 1874.
+           EXIT.
+       P-INVALID.
+           DISPLAY "THAT IS A INVALID CHOICE" AT 1647
+           PERFORM P-PAUSE
            EXIT.
        P-BOARDER.
            PERFORM VARYING I FROM 15 BY 1 UNTIL I > 105
