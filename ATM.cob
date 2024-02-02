@@ -155,7 +155,7 @@
              PERFORM P-PAUSE
            ELSE
              MOVE F-BAL TO WS-AMOUNT
-             PERFORM ATM UNTIL WS-CHOICE IS EQUAL TO 5
+             PERFORM ATM UNTIL WS-CHOICE IS EQUAL TO 4
              MOVE ZEROES TO F-PIN
            END-IF.
            MOVE ZERO TO WS-CHOICE.
@@ -166,19 +166,19 @@
            PERFORM P-BOARDER.
            PERFORM P-STARS.
            DISPLAY "ATM CONSOLE PROGRAM" AT 0650 FOREGROUND-COLOR 3.
-           DISPLAY "1 - BALANCE" AT 0752.
-           DISPLAY "2 - DEPOSIT" AT 0852.
-           DISPLAY "3 - WITHDRAW" AT 0952.
-           DISPLAY "4 - PROFILE" AT 1052.
-           DISPLAY "5 - EXIT" AT 1152.
-           DISPLAY "ENTER YOUR CHOICE:" AT 1252.
-           ACCEPT WS-CHOICE AT 1271.
+           DISPLAY "WELCOME:" AT 0750.
+           DISPLAY F-NAME AT 0759 FOREGROUND-COLOR 6.
+           DISPLAY "1 - BALANCE" AT 0952.
+           DISPLAY "2 - DEPOSIT" AT 1052.
+           DISPLAY "3 - WITHDRAW" AT 1152.
+           DISPLAY "4 - EXIT" AT 1252.
+           DISPLAY "ENTER YOUR CHOICE:" AT 1352.
+           ACCEPT WS-CHOICE AT 1371.
            EVALUATE WS-CHOICE
                WHEN 1 PERFORM P-BALANCE
                WHEN 2 PERFORM P-DEPOSIT
                WHEN 3 PERFORM P-WITHDRAW
-               WHEN 4 PERFORM P-PROFILE
-               WHEN 5 DISPLAY " "
+               WHEN 4 DISPLAY " "
                WHEN OTHER PERFORM P-INVALID
            END-EVALUATE.
            PERFORM P-PAUSE.
@@ -235,21 +235,6 @@
                MOVE "WITHDRAW" TO WS-MES
                PERFORM P-BUNNY
            END-IF.
-           EXIT.
-
-      *PROFILE SECTION
-       P-PROFILE.
-           DISPLAY " " ERASE SCREEN.
-           PERFORM P-BOARDER.
-           PERFORM P-STARS.
-           DISPLAY "PROFILE SECTION" AT 0652 FOREGROUND-COLOR 3.
-           DISPLAY "NAME:" AT 0850
-           DISPLAY F-NAME AT 0856.
-           DISPLAY "AGE:" AT 0950.
-           DISPLAY F-AGE AT 0955.
-           DISPLAY "CURRENT BALANCE:" AT 1050.
-           MOVE F-BAL TO WS-AMOUNT.
-           DISPLAY WS-AMOUNT AT 1067.
            EXIT.
 
       *PAUSE SECTION
