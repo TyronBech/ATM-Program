@@ -5,7 +5,7 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
        SELECT USERDATA ASSIGN TO
-       "C:\Users\tyron\OneDrive\Desktop\COBOL\ATM-MACHINE\files.txt"
+       "files.txt"
                ORGANIZATION IS INDEXED
                ACCESS MODE IS RANDOM
                RECORD KEY F-PIN.
